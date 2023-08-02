@@ -43,6 +43,7 @@ public class RabbitMqSubscriber : BackgroundService
 
             if(existItem != null)
             {
+                //vai mandar dado para outra fila
                 _channel.BasicPublish(exchange: "", routingKey: "order_queue", basicProperties: null, body: body);
             }
         };

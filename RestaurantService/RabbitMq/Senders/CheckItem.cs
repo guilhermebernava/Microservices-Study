@@ -23,7 +23,7 @@ public class CheckItemRabbitMq : ICheckItemRabbitMq
     {
         string mensagem = JsonSerializer.Serialize(new SubscriberDto(itemId,orderId));
         var body = Encoding.UTF8.GetBytes(mensagem);
-        //vai enviar a mensagem pelo rabbitMq
+        //vai enviar a mensagem pelo rabbitMq para fila especifica
         _channel.BasicPublish(exchange: "", routingKey: "item_queue", basicProperties: null, body: body);
     }
 }

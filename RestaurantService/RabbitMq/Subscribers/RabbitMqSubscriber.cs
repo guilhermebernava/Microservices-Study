@@ -19,13 +19,9 @@ public class RabbitMqSubscriber : BackgroundService
     public RabbitMqSubscriber(IConfiguration configuration, IServiceScopeFactory scopeFactory)
     {
         _configuration = configuration;
-        //abrindo uma conexao com rabbitMq
         _connection = new ConnectionFactory() { HostName = _configuration["RabbitMqHost"], Port = int.Parse(_configuration["RabbitMqPort"]), UserName = "admin", Password = "1234" }.CreateConnection();
-        //criando o canal
         _channel = _connection.CreateModel();
-        //criando a fila e pegando seu nome
         _queueName = _channel.QueueDeclare(queue: "order_queue").QueueName;
-        //conectando a fila com o canal, via trigger
         _scopeFactory = scopeFactory;
     }
 
@@ -44,7 +40,7 @@ public class RabbitMqSubscriber : BackgroundService
 
             var existItem = orderItemRepository.AddAsync(new Entities.OrderItem(dto.OrderId,dto.ItemId));
         };
-
+        //consumir a fila com o nome especifico
         _channel.BasicConsume(_queueName, autoAck: true, consumer);
         return Task.CompletedTask;
     }
