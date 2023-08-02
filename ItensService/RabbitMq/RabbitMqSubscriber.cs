@@ -21,17 +21,15 @@ public class RabbitMqSubscriber : BackgroundService
         _configuration = configuration;
         _connection = new ConnectionFactory() { HostName = _configuration["RabbitMqHost"], Port = int.Parse(_configuration["RabbitMqPort"]), UserName = "admin", Password = "1234" }.CreateConnection();
         _channel = _connection.CreateModel();
-        _channel.ExchangeDeclare(exchange: "trigger", type: ExchangeType.Fanout);
-        _queueName = _channel.QueueDeclare().QueueName;
-        _channel.QueueBind(queue: _queueName, exchange: "trigger", routingKey: "");
+        _queueName = _channel.QueueDeclare(queue: "item_queue").QueueName;
         _scopeFactory = scopeFactory;
     }
 
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         EventingBasicConsumer? consumer = new(_channel);
 
-        consumer.Received += (ModuleHandle, ea) =>
+         consumer.Received += async (ModuleHandle, ea) =>
         {
             ReadOnlyMemory<byte> body = ea.Body;
             string? mensagem = Encoding.UTF8.GetString(body.ToArray());
@@ -41,16 +39,14 @@ public class RabbitMqSubscriber : BackgroundService
             using var scope = _scopeFactory.CreateScope();
             var itemRepository = scope.ServiceProvider.GetRequiredService<IItemRepository>();
 
-            var existItem = itemRepository.GetByIdAsync(dto.ItemId);
+            var existItem = await itemRepository.GetByIdAsync(dto.ItemId);
 
             if(existItem != null)
             {
-                _channel.BasicPublish(exchange: "trigger", routingKey: "", basicProperties: null, body: body);
+                _channel.BasicPublish(exchange: "", routingKey: "order_queue", basicProperties: null, body: body);
             }
         };
-
         _channel.BasicConsume(_queueName, autoAck: true, consumer);
-
-        return Task.CompletedTask;
+        return;
     }
 }

@@ -23,8 +23,9 @@ public class ItemRepository : IItemRepository
             DbSet.Add(item);
             return await SaveAsync();
         }
-        catch
+        catch(Exception ex) 
         {
+            var teste = ex.Message;
             return false;
         }
     }

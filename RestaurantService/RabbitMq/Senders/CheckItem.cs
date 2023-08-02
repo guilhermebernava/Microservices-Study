@@ -17,9 +17,6 @@ public class CheckItemRabbitMq : ICheckItemRabbitMq
         //vai criar uma conexao com o rabbitMq
         _connection = new ConnectionFactory() { HostName = _configuration["RabbitMqHost"], Port = int.Parse(_configuration["RabbitMqPort"]), UserName = "admin", Password = "1234" }.CreateConnection();
         _channel = _connection.CreateModel();
-
-        //vai especificar a forma de troca de dados
-        _channel.ExchangeDeclare(exchange: "trigger", type: ExchangeType.Fanout);
     }
 
     public void Execute(int itemId, int orderId)
@@ -27,6 +24,6 @@ public class CheckItemRabbitMq : ICheckItemRabbitMq
         string mensagem = JsonSerializer.Serialize(new SubscriberDto(itemId,orderId));
         var body = Encoding.UTF8.GetBytes(mensagem);
         //vai enviar a mensagem pelo rabbitMq
-        _channel.BasicPublish(exchange: "trigger", routingKey: "", basicProperties: null, body: body);
+        _channel.BasicPublish(exchange: "", routingKey: "item_queue", basicProperties: null, body: body);
     }
 }
