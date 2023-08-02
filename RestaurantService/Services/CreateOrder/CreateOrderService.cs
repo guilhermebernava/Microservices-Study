@@ -19,9 +19,9 @@ public class CreateOrderService : ICreateOrderService
     private ICheckItemHttp CheckItemHttp { get; set; }
 
 
-    public async Task<bool> CreateAsync(OrderModel model)
+    public async Task<bool> Execute(OrderModel model)
     {
-        foreach(var item in model.ItensId)
+        foreach (var item in model.ItensId)
         {
             var result = await CheckItemHttp.Send(item);
 
@@ -30,18 +30,18 @@ public class CreateOrderService : ICreateOrderService
                 return false;
             }
         }
-       
+
         await OrderRepository.AddAsync(new Order());
         var orderEntity = await OrderRepository.GetLastInsertAsync();
 
-        if(orderEntity == null)
+        if (orderEntity == null)
         {
             return false;
         }
 
         foreach (var item in model.ItensId)
         {
-            if(!await OrderItemRepository.AddAsync(new OrderItem(orderEntity.Id, item)))
+            if (!await OrderItemRepository.AddAsync(new OrderItem(orderEntity.Id, item)))
             {
                 return false;
             };
@@ -49,4 +49,5 @@ public class CreateOrderService : ICreateOrderService
 
         return true;
     }
+
 }

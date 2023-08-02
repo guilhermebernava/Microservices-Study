@@ -1,5 +1,6 @@
 using ItensService.Context;
 using ItensService.Mappers;
+using ItensService.RabbitMq;
 using ItensService.Repositories;
 using ItensService.Services;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddServices();
+builder.Services.AddHostedService<RabbitMqSubscriber>();
 builder.Services.AddDbContext<ItemContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), b => b.MigrationsAssembly(typeof(ItemContext).Assembly.FullName));

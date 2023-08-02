@@ -22,5 +22,8 @@ public class Repository<T> : IRepository<T> where T : class
 
     private async Task<bool> SaveAsync() => await Context.SaveChangesAsync() == 1;
 
-  
+    public async Task<List<T>> GetAll()
+    {
+        return await DbSet.ToListAsync();
+    }
 }

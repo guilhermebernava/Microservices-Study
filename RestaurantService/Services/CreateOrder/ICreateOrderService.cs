@@ -4,5 +4,5 @@ namespace RestaurantService.Services.CreateOrder;
 
 public interface ICreateOrderService
 {
-    public Task<bool> CreateAsync(OrderModel model);
+    public Task<bool> Execute(OrderModel model);
 }
